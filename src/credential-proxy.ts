@@ -79,11 +79,16 @@ export function startCredentialProxy(
           }
         }
 
+        // Prepend the path prefix from ANTHROPIC_BASE_URL (e.g. /v1/proxy)
+        // so providers that use a non-root base path work correctly.
+        const basePath = upstreamUrl.pathname.replace(/\/$/, '');
+        const upstreamPath = basePath + (req.url || '/');
+
         const upstream = makeRequest(
           {
             hostname: upstreamUrl.hostname,
             port: upstreamUrl.port || (isHttps ? 443 : 80),
-            path: req.url,
+            path: upstreamPath,
             method: req.method,
             headers,
           } as RequestOptions,
